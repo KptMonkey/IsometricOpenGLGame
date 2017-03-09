@@ -12,6 +12,7 @@ struct Vertex {
 struct VertexT{
     glm::vec3 Position;
     glm::vec2 TexPosition;
+    glm::vec3 Normal;
 };
 
 enum class GlTypes { Float };

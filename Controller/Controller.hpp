@@ -10,7 +10,7 @@ public:
     cameraIsometric(glm::vec3 & moveClick, bool & running );
 
     void
-    cameraFPS( glm::vec2 mousePosition, float yaw, float pitch, bool & running);
+    cameraFPS( bool & running);
 
     void
     updateView();
@@ -21,9 +21,9 @@ public:
     glm::mat4
     getProjection() { return m_Projection; }
 
+    glm::vec3 m_CameraPosition;
 private:
 
-    glm::vec3 m_CameraPosition;
     glm::vec3 m_Forward;
     glm::vec3 m_Sideward;
     float     m_Pitch;

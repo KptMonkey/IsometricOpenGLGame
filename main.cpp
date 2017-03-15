@@ -30,14 +30,14 @@ int main() {
     rctx.enableDepthTest();
     Player player;
     player.init();
-//    SDL_ShowCursor(SDL_ENABLE);
-//    SDL_SetRelativeMouseMode(SDL_FALSE);
+    SDL_ShowCursor(SDL_ENABLE);
+    SDL_SetRelativeMouseMode(SDL_FALSE);
     glCullFace(GL_BACK);
     while ( running ) {
-//        playerInput.cameraIsometric(moveClick, running);
-        playerInput.cameraFPS(running);
-        playerInput.m_CameraPosition.z = terrain.getHeight(playerInput.m_CameraPosition.x, playerInput.m_CameraPosition.y);
-        playerInput.updateView();
+        playerInput.cameraIsometric(moveClick, running);
+//        playerInput.cameraFPS(running);
+//        playerInput.m_CameraPosition.z = terrain.getHeight(playerInput.m_CameraPosition.x, playerInput.m_CameraPosition.y) + 0.5f;
+//        playerInput.updateView();
         rctx.clearColor(0.1f, 0.3f, 0.3f, 1.0f);
         rctx.clearColorBuffer();
         rctx.clearDepthBuffer();
@@ -54,7 +54,7 @@ int main() {
 //        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
         rctx.drawIndex(terrainShader,terrain.m_Indices.size());
 //        glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-//        player.render(terrain, moveClick, rctx, playerInput);
+        player.render(terrain, moveClick, rctx, playerInput);
 
         rctx.swapBuffers();
     }

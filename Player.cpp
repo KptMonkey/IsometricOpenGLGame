@@ -19,8 +19,8 @@ Player::render(HeightMap & height, glm::vec3 clickPos, RenderContext & ctx, Cont
     m_PlayerShader.activate();
     glm::mat4 model(1.0f);
     m_PlayerPos += (clickPos - m_PlayerPos) * 0.01f;
-    m_PlayerPos.z = height.getHeight(m_PlayerPos.x, m_PlayerPos.y) + 0.55f; // Half size of the cube
-    control.m_CameraPosition = glm::vec3(m_PlayerPos.x, m_PlayerPos.y, m_PlayerPos.z + 20.0f);
+    m_PlayerPos.z = height.getHeight(m_PlayerPos.x, m_PlayerPos.y) + 0.50f; // Half size of the cube
+    control.m_CameraPosition = glm::vec3(m_PlayerPos.x, m_PlayerPos.y, m_PlayerPos.z + 60.0f);
     control.updateView();
 //    std::cout << m_PlayerPos.z << "\n";
 //    std::cout <<"X: " << m_PlayerPos.x << "\n";

@@ -16,9 +16,10 @@ HeightMap::loadHeightMapFromImage(std::string path) {
     for ( int i = 0; i < m_Rows; ++i) {
         for (int j = 0; j<m_Columns; ++j) {
 
-            m_Heights[i].resize(m_Columns);
-            float halfWidth = (float)(m_Columns-1.0f)/2.0f;
-            float halfHeight = (float)(m_Rows-1.0f)/2.0f;
+            m_Heights[j].reserve(m_Rows);
+            std::cout << m_Heights[m_Columns-j-1].size() << "size \n";
+            float halfWidth = (float)(m_Columns)/2.0f;
+            float halfHeight = (float)(m_Rows)/2.0f;
 
             int lineOffSet = i * (image->pitch/4);
             Uint32 pixel = ((Uint32*)image->pixels)[lineOffSet + j];
@@ -26,9 +27,18 @@ HeightMap::loadHeightMapFromImage(std::string path) {
             SDL_GetRGB(pixel,image->format,&r, &g, &b);
             float m_pHeight = static_cast<float>(g/15.0f);
             VertexT temp ;
-            m_Heights[i][j] = m_pHeight;
+            m_Heights[j][m_Rows-i-1] = m_pHeight;
             std::cout << "i, j: " << i << " " << j << " " << m_pHeight << "\n";
             temp.Position = glm::vec3(j-halfWidth, i-halfHeight, m_pHeight);
+//            if( i == 0  ){
+//                temp.Position = glm::vec3(j-halfWidth,i-halfHeight, 4.0f);
+//                m_Heights[m_Columns-j-1][m_Rows-i-1] = 4.0f;
+//            }
+//            else{
+
+//                m_Heights[m_Columns-j-1][m_Rows-i-1] = 0.1f;
+//                temp.Position = glm::vec3(j-halfWidth,i-halfHeight, 0.0f);
+//            }
             temp.TexPosition = glm::vec2((float)j /(m_Rows-1), (float)i/ (m_Columns-1));
             auto pos1 = glm::vec3(j-halfWidth, i-halfHeight, m_pHeight);
             glm::vec3 pos2;
@@ -55,13 +65,13 @@ HeightMap::loadHeightMapFromImage(std::string path) {
 
 float
 HeightMap::getHeight(float x, float y) {
-    float terrainX = x+(m_Columns-1)/2;
-    float terrainY = (m_Rows-1)/2 - y;
+    float terrainX = x+(m_Columns)/2;
+    float terrainY = (m_Rows)/2 - y;
     int gridX = static_cast<int>(terrainX);
     int gridY = static_cast<int>(terrainY);
+    if( gridX >= m_Columns || gridY >=m_Rows || gridX < 0 || gridY < 0) return 0.0f;
     std::cout << "Height:" << m_Heights[gridX][gridY] << "\n";
     std::cout << "Grid: " << gridX << " " << gridY << "\n";
-    if( gridX >= m_Columns || gridY >=m_Rows || gridX < 0 || gridY < 0) return 0.0f;
 
     float squarePosX = std::abs(std::fmod(terrainX,1.0f));
     float squarePosY = std::abs(std::fmod(terrainY,1.0f));

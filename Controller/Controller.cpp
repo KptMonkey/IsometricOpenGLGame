@@ -4,7 +4,7 @@
 #include <iostream>
 
 Controller::Controller() :
-    m_CameraPosition(glm::vec3(0.0f, 0.0f,180.0f)),
+    m_CameraPosition(glm::vec3(0.0f, 1.0f,180.0f)),
     m_Forward(glm::vec3(0.0f)),
     m_Sideward(glm::vec3(0.0f)),
     m_Pitch(0.0f),
@@ -13,7 +13,7 @@ Controller::Controller() :
     m_View = glm::lookAt( m_CameraPosition,
                           glm::vec3(0.0f, 0.0f, 0.0f),
                           glm::vec3(0.0f, 1.0f, 0.0f) );
-    m_Projection = glm::perspective( 45.0f, 0.75f, 0.001f, 10000.0f );
+    m_Projection = glm::perspective( 45.0f, 0.75f, 0.001f, 150.0f );
 }
 
 void

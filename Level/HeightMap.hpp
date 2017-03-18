@@ -3,14 +3,16 @@
 #include <string>
 #include <vector>
 #include "VertexArray.hpp"
+#include "IGlobalRenderable.hpp"
+#include "Controller/Controller.hpp"
 
-class HeightMap
+class HeightMap : public IGlobalRenderable
 {
 public:
 
-   HeightMap(){}
+   HeightMap(std::string path);
 
-   bool loadHeightMapFromImage(std::string path);
+   bool loadHeightMapFromImage(std::string const & path);
 
    float
    getHeight(float x, float y);
@@ -21,6 +23,16 @@ public:
    void
    createIndicies();
 
+   void
+   draw(Shader & shader, RenderContext & rctx) override;
+
+   void
+   drawTerrain(RenderContext & rctx,
+               Texture &depthTexture,
+               Controller & input,
+               glm::mat4 const & lightView,
+               glm::vec3 const & lightPos);
+
    std::vector<VertexT> m_Vertices;
    std::vector<unsigned int> m_Indices;
 
@@ -29,4 +41,10 @@ private:
    int m_Rows;
    int m_Columns;
    std::vector< std::vector<float> > m_Heights;
+   VertexArray m_VertexArray;
+   Shader m_Shader;
+   glm::mat4 m_ModelMatrix;
+   Texture m_GrasTexture;
+   Texture m_StoneTexture;
+
 };

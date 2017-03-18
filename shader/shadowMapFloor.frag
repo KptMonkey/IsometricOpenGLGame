@@ -38,8 +38,8 @@ void main()
   vec3 norm = normalize(Normal);
 
   //Normal Mapping
-  norm = texture(groundNormal,TexPos).rgb;
-  norm = normalize(norm*2.0 -1.0);
+//  norm = texture(groundNormal,TexPos).rgb;
+//  norm = normalize(norm*2.0 -1.0);
 
 //  vec3 Tangent = normalize(worldTangent);
 //  Tangent = normalize( Tangent - dot(Tangent,norm) * norm);

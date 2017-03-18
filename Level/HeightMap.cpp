@@ -4,9 +4,27 @@
 #include <random>
 #include <fstream>
 
+HeightMap::HeightMap(std::string path) :
+    m_ModelMatrix(glm::mat4(1.0f))
+
+{
+    loadHeightMapFromImage(path);
+
+    m_VertexArray.createIndexBuffer(m_Vertices, m_Indices);
+    m_VertexArray.describeVertexArray(0, 3, GlTypes::Float, 8, GlBool::False, 0);
+    m_VertexArray.describeVertexArray(1, 2, GlTypes::Float, 8, GlBool::False, 3);
+    m_VertexArray.describeVertexArray(2, 3, GlTypes::Float, 8, GlBool::False, 5);
+
+    m_Shader.bindShader("./shader/shadowMapFloor.vert");
+    m_Shader.bindShader("./shader/shadowMapFloor.frag");
+
+    m_GrasTexture.load2DTexture("./media/level/gras.jpeg");
+    m_StoneTexture.load2DTexture("./media/level/stone.jpeg");
+}
+
 
 bool
-HeightMap::loadHeightMapFromImage(std::string path) {
+HeightMap::loadHeightMapFromImage(std::string const & path) {
 
     auto image = IMG_Load(path.c_str());
     m_Rows = image->h;
@@ -17,7 +35,6 @@ HeightMap::loadHeightMapFromImage(std::string path) {
         for (int j = 0; j<m_Columns; ++j) {
 
             m_Heights[j].reserve(m_Rows);
-            std::cout << m_Heights[m_Columns-j-1].size() << "size \n";
             float halfWidth = (float)(m_Columns)/2.0f;
             float halfHeight = (float)(m_Rows)/2.0f;
 
@@ -28,39 +45,25 @@ HeightMap::loadHeightMapFromImage(std::string path) {
             float m_pHeight = static_cast<float>(g/15.0f);
             VertexT temp ;
             m_Heights[j][m_Rows-i-1] = m_pHeight;
-            std::cout << "i, j: " << i << " " << j << " " << m_pHeight << "\n";
             temp.Position = glm::vec3(j-halfWidth, i-halfHeight, m_pHeight);
-//            if( i == 0  ){
-//                temp.Position = glm::vec3(j-halfWidth,i-halfHeight, 4.0f);
-//                m_Heights[m_Columns-j-1][m_Rows-i-1] = 4.0f;
-//            }
-//            else{
-
-//                m_Heights[m_Columns-j-1][m_Rows-i-1] = 0.1f;
-//                temp.Position = glm::vec3(j-halfWidth,i-halfHeight, 0.0f);
-//            }
-            temp.TexPosition = glm::vec2((float)j /(m_Rows-1), (float)i/ (m_Columns-1));
+            temp.TexPosition = glm::vec2(16.0f * (float)j/m_Rows, 16.0f * (float)i/m_Rows);
             auto pos1 = glm::vec3(j-halfWidth, i-halfHeight, m_pHeight);
             glm::vec3 pos2;
             glm::vec3 pos3;
             if( i == m_Rows || j == m_Columns ) {
                 pos2 = glm::vec3((j)-halfWidth, (i-1)-halfHeight, m_pHeight);
                 pos3 = glm::vec3((j-1)-halfWidth, (i)-halfHeight, m_pHeight);
-
             }
             else{
                 pos2 = glm::vec3((j)-halfWidth, (1+i)-halfHeight, m_pHeight);
                 pos3 = glm::vec3((j-1)-halfWidth, (i)-halfHeight, m_pHeight);
-
             }
             temp.Normal = glm::cross((pos1-pos2),(pos1-pos3));
 
             m_Vertices.emplace_back(temp);
-
         } // Columns
     } // Rows
     createIndicies();
-
 }
 
 float
@@ -70,12 +73,8 @@ HeightMap::getHeight(float x, float y) {
     int gridX = static_cast<int>(terrainX);
     int gridY = static_cast<int>(terrainY);
     if( gridX >= m_Columns || gridY >=m_Rows || gridX < 0 || gridY < 0) return 0.0f;
-    std::cout << "Height:" << m_Heights[gridX][gridY] << "\n";
-    std::cout << "Grid: " << gridX << " " << gridY << "\n";
-
     float squarePosX = std::abs(std::fmod(terrainX,1.0f));
     float squarePosY = std::abs(std::fmod(terrainY,1.0f));
-//    std::cout << "squarePos: " << squarePosX << " " << squarePosY << "\n";
     float height;
     if (squarePosX <= 1.0f - squarePosY){
        height = barryCentric( glm::vec3(0, m_Heights[gridX][gridY], 0), glm::vec3(1,
@@ -120,4 +119,36 @@ HeightMap::createIndicies() {
              }
         }
     }
+}
+
+void
+HeightMap::draw(Shader & shader, RenderContext & rctx) {
+    //It would be possible to have more terrains......
+    shader["model"] = m_ModelMatrix;
+    m_VertexArray.bindVertexArray();
+    rctx.drawIndex(PrimitiveType::TiangleStrip,m_Indices.size());
+}
+
+void
+HeightMap::drawTerrain(RenderContext & rctx, Texture & depthTexture, Controller & input, const glm::mat4 &lightView, const glm::vec3 &lightPos) {
+    m_Shader.activate();
+    m_Shader["model"] = m_ModelMatrix;
+    m_Shader["Color"] = glm::vec4(0.0f, 0.0f, 1.0f, 1.0f);
+    m_Shader["projection"] = input.getProjection();
+    m_Shader["viewPos"] = input.m_CameraPosition;
+    m_Shader["lightSpace"] = lightView;
+    m_Shader["view"] = input.getView();
+    m_Shader["lightPos"] = lightPos;
+
+    // Don't forget that the order is important
+    m_Shader["shadowMap"]=0;
+    depthTexture.activate(0);
+    m_Shader["ground"] = 1;
+    m_GrasTexture.activate(1);
+    m_Shader["groundNormal"] = 2;
+    m_StoneTexture.activate(2);
+
+    m_VertexArray.bindVertexArray();
+    rctx.drawIndex(PrimitiveType::TiangleStrip,m_Indices.size());
+
 }

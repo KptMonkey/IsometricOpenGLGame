@@ -24,6 +24,8 @@ public:
     void
     createVertexArray(const std::vector<float> &vertices );
     void
+    createVertexArray(const std::vector<glm::vec3> &vertices );
+    void
     createVertexArray(const std::vector<Vertex> &vertices );
     void
     createIndexBuffer(const std::vector<float> &vertices, const std::vector<unsigned int> &indices );

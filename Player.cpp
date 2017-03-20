@@ -20,10 +20,10 @@ Player::updatePosition(HeightMap & height, glm::vec3 clickPos, Controller &contr
     m_ModelMatrix=glm::mat4(1.0f);
     m_PlayerPos += (clickPos - m_PlayerPos) * 0.01f;
     m_PlayerPos.z = height.getHeight(m_PlayerPos.x, m_PlayerPos.y) + 5.0f; // Half size of the cube
-    control.m_CameraPosition = glm::vec3(m_PlayerPos.x, m_PlayerPos.y, m_PlayerPos.z + 120.0f);
+    control.m_CameraPosition = glm::vec3(m_PlayerPos.x, m_PlayerPos.y, m_PlayerPos.z + 20.0f);
     control.updateView();
     m_ModelMatrix = glm::translate(m_ModelMatrix, m_PlayerPos);
-    m_ModelMatrix = glm::scale(m_ModelMatrix, glm::vec3(5.0f));
+    m_ModelMatrix = glm::scale(m_ModelMatrix, glm::vec3(3.0f));
 }
 
 void

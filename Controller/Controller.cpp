@@ -4,7 +4,7 @@
 #include <iostream>
 
 Controller::Controller() :
-    m_CameraPosition(glm::vec3(0.0f, 1.0f,180.0f)),
+    m_CameraPosition(glm::vec3(0.0f, 0.0f,180.0f)),
     m_Forward(glm::vec3(0.0f)),
     m_Sideward(glm::vec3(0.0f)),
     m_Pitch(0.0f),

@@ -35,6 +35,9 @@ public:
 
    std::vector<VertexT> m_Vertices;
    std::vector<unsigned int> m_Indices;
+   std::vector<glm::vec3> m_GrasPosition;
+   VertexArray m_GrasArray;
+   Shader GrasShader;
 
 private:
 

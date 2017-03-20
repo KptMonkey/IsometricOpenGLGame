@@ -15,6 +15,13 @@ HeightMap::HeightMap(std::string path) :
     m_VertexArray.describeVertexArray(1, 2, GlTypes::Float, 8, GlBool::False, 3);
     m_VertexArray.describeVertexArray(2, 3, GlTypes::Float, 8, GlBool::False, 5);
 
+    m_GrasArray.createVertexArray(m_GrasPosition);
+    m_GrasArray.describeVertexArray(0, 3, GlTypes::Float,3, GlBool::False,0);
+
+    GrasShader.bindShader("./shader/gras.vert");
+    GrasShader.bindShader("./shader/gras.geom");
+    GrasShader.bindShader("./shader/gras.frag");
+
     m_Shader.bindShader("./shader/shadowMapFloor.vert");
     m_Shader.bindShader("./shader/shadowMapFloor.frag");
 
@@ -29,14 +36,14 @@ HeightMap::loadHeightMapFromImage(std::string const & path) {
     auto image = IMG_Load(path.c_str());
     m_Rows = image->h;
     m_Columns = image->w;
+    float halfWidth = (float)(m_Columns)/2.0f;
+    float halfHeight = (float)(m_Rows)/2.0f;
 
     m_Heights.resize(m_Rows);
     for ( int i = 0; i < m_Rows; ++i) {
         for (int j = 0; j<m_Columns; ++j) {
 
             m_Heights[j].reserve(m_Rows);
-            float halfWidth = (float)(m_Columns)/2.0f;
-            float halfHeight = (float)(m_Rows)/2.0f;
 
             int lineOffSet = i * (image->pitch/4);
             Uint32 pixel = ((Uint32*)image->pixels)[lineOffSet + j];
@@ -46,6 +53,7 @@ HeightMap::loadHeightMapFromImage(std::string const & path) {
             VertexT temp ;
             m_Heights[j][m_Rows-i-1] = m_pHeight;
             temp.Position = glm::vec3(j-halfWidth, i-halfHeight, m_pHeight);
+            m_GrasPosition.push_back(glm::vec3(j-halfWidth, i-halfHeight, m_pHeight));
             temp.TexPosition = glm::vec2(16.0f * (float)j/m_Rows, 16.0f * (float)i/m_Rows);
             auto pos1 = glm::vec3(j-halfWidth, i-halfHeight, m_pHeight);
             glm::vec3 pos2;

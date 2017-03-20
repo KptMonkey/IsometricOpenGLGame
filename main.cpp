@@ -35,15 +35,18 @@ int main() {
     world.emplace_back(&terrain);
     world.emplace_back(&player);
 
+    Texture gras;
+    gras.load2DTextureAlpha("./media/level/gras.png");
+
     SDL_SetRelativeMouseMode(SDL_TRUE);
-    SDL_ShowCursor(SDL_ENABLE);
-    SDL_SetRelativeMouseMode(SDL_FALSE);
+//    SDL_ShowCursor(SDL_ENABLE);
+//    SDL_SetRelativeMouseMode(SDL_FALSE);
     glCullFace(GL_BACK);
 
     int i = 0;
     rctx.enableDepthTest();
     while ( running ) {
-        player.updatePosition(terrain,moveClick, playerInput);
+//        player.updatePosition(terrain,moveClick, playerInput);
         //Light should have its own struct or so..
         glm::vec3 lightPos=glm::vec3(std::cos(i*0.01f)*70.0f, 160.0f, 140.0f);
         ++i;
@@ -54,10 +57,10 @@ int main() {
 
         glm::mat4 lightSpace = lightProjection * lightView;
 
-        playerInput.cameraIsometric(moveClick, running);
-//        playerInput.cameraFPS(running);
-//        playerInput.m_CameraPosition.z = terrain.getHeight(playerInput.m_CameraPosition.x, playerInput.m_CameraPosition.y) + 1.5f;
-//        playerInput.updateView();
+//        playerInput.cameraIsometric(moveClick, running);
+        playerInput.cameraFPS(running);
+        playerInput.m_CameraPosition.z = terrain.getHeight(playerInput.m_CameraPosition.x, playerInput.m_CameraPosition.y) + 1.5f;
+        playerInput.updateView();
 
         glViewport(0,0,2024,2024);
         depthShader.activate();
@@ -79,7 +82,17 @@ int main() {
         rctx.clearDepthBuffer();
 
         terrain.drawTerrain(rctx, depth, playerInput, lightSpace, lightPos);
+        terrain.GrasShader.activate();
+        glm::mat4 model(1.0f);
+        terrain.GrasShader["model"]=model;
+        terrain.GrasShader["view"]=playerInput.getView();
+        terrain.GrasShader["projection"]=playerInput.getProjection();
+        terrain.GrasShader["gras"]=0;
+        gras.activate(0);
+        terrain.m_GrasArray.bindVertexArray();
+        rctx.draw(terrain.m_GrasArray, PrimitiveType::Points);
         player.drawPlayer(rctx, playerInput);
+
         rctx.swapBuffers();
     }
 }

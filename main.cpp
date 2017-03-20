@@ -3,6 +3,7 @@
 #include "Level/HeightMap.hpp"
 #include "Player.hpp"
 #include <glm/gtc/matrix_transform.hpp>
+#include <iostream>
 int main() {
 
     //TODO: Create player, level classes which draw them selves
@@ -42,13 +43,14 @@ int main() {
 //    SDL_ShowCursor(SDL_ENABLE);
 //    SDL_SetRelativeMouseMode(SDL_FALSE);
     glCullFace(GL_BACK);
-
+    float wind = 0.0f;
     int i = 0;
     rctx.enableDepthTest();
     while ( running ) {
+        wind +=0.008f;
 //        player.updatePosition(terrain,moveClick, playerInput);
         //Light should have its own struct or so..
-        glm::vec3 lightPos=glm::vec3(std::cos(i*0.01f)*70.0f, 160.0f, 140.0f);
+        glm::vec3 lightPos=glm::vec3(std::cos(i*0.003f)*70.0f-128.0f, 128, 100.0f);
         ++i;
         glm::mat4 lightProjection = glm::ortho(-128.0f, 128.0f, -66.0f, 58.0f, 100.1f, 400.0f);
         glm::mat4 lightView = glm::lookAt( lightPos,
@@ -84,6 +86,7 @@ int main() {
         terrain.drawTerrain(rctx, depth, playerInput, lightSpace, lightPos);
         terrain.GrasShader.activate();
         glm::mat4 model(1.0f);
+        terrain.GrasShader["wind"]=wind;
         terrain.GrasShader["model"]=model;
         terrain.GrasShader["view"]=playerInput.getView();
         terrain.GrasShader["projection"]=playerInput.getProjection();

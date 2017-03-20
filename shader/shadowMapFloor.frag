@@ -32,25 +32,34 @@ void main()
 
   
   float ambientConst = 0.1;
+  
   vec3 color = vec3(texture(ground,TexPos));
+  if ( FragPos.z <= 4.0 )
+  {
+      color = vec3(texture(ground,TexPos));
+  }
+
+  else if ( FragPos.z > 4.0 && FragPos.z <= 5.0)
+  {
+	color = (1.0 - (FragPos.z-4.0)/2.5) * vec3(texture(ground,TexPos));
+        color += (FragPos.z-4.0)/2.5 * vec3(texture(groundNormal,TexPos));
+  }
+  else if (FragPos.z > 5.0 && FragPos.z < 7.0)
+  {
+	color = vec3(texture(groundNormal,TexPos));	
+	float black = color.r + color.g + color.b;
+	if(black < 0.4)
+	{     
+		color = vec3(texture(ground,TexPos));
+	}
+  }
+  else
+  {
+	color = vec3(texture(groundNormal,TexPos));
+  } 
   vec3 ambientColor = color * ambientConst;
 
   vec3 norm = normalize(Normal);
-
-  //Normal Mapping
-//  norm = texture(groundNormal,TexPos).rgb;
-//  norm = normalize(norm*2.0 -1.0);
-
-//  vec3 Tangent = normalize(worldTangent);
-//  Tangent = normalize( Tangent - dot(Tangent,norm) * norm);
-//  vec3 BitTangent = cross(Tangent,norm);
-//  vec3 bumpMapNormal = texture(groundNormal,TexPos).xyz;
-//  bumpMapNormal = bumpMapNormal*2.0 - vec3(1.0);
-//  vec3 newNormal;
-//  mat3 TBN = mat3(Tangent, BitTangent, norm);
-//  newNormal = TBN * bumpMapNormal;
-//  newNormal = normalize(newNormal);
-//  norm = newNormal;
 
 
   vec3 lightDir = normalize(lightPos-FragPos);

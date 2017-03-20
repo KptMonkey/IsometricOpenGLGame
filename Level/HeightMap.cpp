@@ -3,6 +3,7 @@
 #include <iostream>
 #include <random>
 #include <fstream>
+#include <random>
 
 HeightMap::HeightMap(std::string path) :
     m_ModelMatrix(glm::mat4(1.0f))
@@ -33,6 +34,10 @@ HeightMap::HeightMap(std::string path) :
 bool
 HeightMap::loadHeightMapFromImage(std::string const & path) {
 
+    std::random_device rd;
+    std::mt19937 mt(rd());
+    std::uniform_real_distribution<double> dist(0.3, 6.0);
+
     auto image = IMG_Load(path.c_str());
     m_Rows = image->h;
     m_Columns = image->w;
@@ -52,8 +57,12 @@ HeightMap::loadHeightMapFromImage(std::string const & path) {
             float m_pHeight = static_cast<float>(g/15.0f);
             VertexT temp ;
             m_Heights[j][m_Rows-i-1] = m_pHeight;
+            if (m_pHeight < 4.3f)
+                m_GrasPosition.push_back(glm::vec3(j-halfWidth, i-halfHeight, m_pHeight));
+            else if( m_pHeight >4.3 && m_pHeight < 6 && i%5==0)
+                m_GrasPosition.push_back(glm::vec3(j-halfWidth, i-halfHeight, m_pHeight));
+
             temp.Position = glm::vec3(j-halfWidth, i-halfHeight, m_pHeight);
-            m_GrasPosition.push_back(glm::vec3(j-halfWidth, i-halfHeight, m_pHeight));
             temp.TexPosition = glm::vec2(16.0f * (float)j/m_Rows, 16.0f * (float)i/m_Rows);
             auto pos1 = glm::vec3(j-halfWidth, i-halfHeight, m_pHeight);
             glm::vec3 pos2;

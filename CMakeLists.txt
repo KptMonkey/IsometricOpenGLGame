@@ -43,7 +43,7 @@ add_executable( game ${PROJECT_SOURCE_DIR}/main.cpp
                 Level/HeightMap
                 Player
                 IGlobalRenderable
-                Scene
+                Collectable
                 )
 target_link_libraries(game
         ${ALL_LIBS} ${SDL2_LIBRARIES} ${SDL2IMAGE_LIBRARIES}

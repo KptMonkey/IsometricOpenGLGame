@@ -4,14 +4,16 @@
 #include <iostream>
 
 Controller::Controller() :
-    m_CameraPosition(glm::vec3(0.0f, 0.0f,180.0f)),
+    m_CameraPosition(glm::vec3(0.0f, 0.0f,30.0f)),
     m_Forward(glm::vec3(0.0f)),
     m_Sideward(glm::vec3(0.0f)),
     m_Pitch(0.0f),
-    m_Yaw(0.0f)
+    m_Yaw(0.0f),
+    m_LookAt(0.0f, 30.0f,0.0f)
+
 {
     m_View = glm::lookAt( m_CameraPosition,
-                          glm::vec3(0.0f, 0.0f, 0.0f),
+                          m_LookAt,
                           glm::vec3(0.0f, 1.0f, 0.0f) );
     m_Projection = glm::perspective( 45.0f, 0.75f, 0.001f, 150.0f );
 }
@@ -20,7 +22,7 @@ void
 Controller::cameraIsometric(glm::vec3 & moveClick, bool & running) {
     while (SDL_PollEvent(&m_Event)) {
         float dx = 0.0f;
-        float dz = 0.0f;
+        float dy = 0.0f;
         switch (m_Event.type) {
 
             case SDL_QUIT:
@@ -32,28 +34,31 @@ Controller::cameraIsometric(glm::vec3 & moveClick, bool & running) {
                     running = false;
                 }
                 if (m_Event.key.keysym.scancode == SDL_SCANCODE_W){
-                    dz = -20.0f;
+                    dy += 2.0f;
                 }
 
                 if (m_Event.key.keysym.scancode == SDL_SCANCODE_S){
-                    dz = 20.0f;
+                    dy += -1.0f;
                 }
                 if (m_Event.key.keysym.scancode == SDL_SCANCODE_D){
-                    dx =  +20.0f;
+                    dx =  +2.0f;
                 }
                 if (m_Event.key.keysym.scancode == SDL_SCANCODE_A){
-                    dx = -20.0f;
+                    dx = -2.0f;
                 }
 
-                m_Forward = glm::vec3(m_View[0][2], m_View[1][2], m_View[2][2]);
-                m_Sideward = glm::vec3(m_View[0][0], m_View[1][0], m_View[2][0]);
-
-
-                m_CameraPosition += (dz * m_Forward + dx *m_Sideward) * 0.10f;
+                m_CameraPosition.x += dx;
+                m_CameraPosition.y +=dy;
+                m_LookAt.x += dx;
+                m_LookAt.y += dy;
                 updateView();
+                break;
 
-
-                 break;
+            case SDL_MOUSEWHEEL:
+                m_Forward = glm::vec3(m_View[0][2], m_View[1][2], m_View[2][2]);
+                m_CameraPosition +=(static_cast<float>(m_Event.wheel.y) * m_Forward)*2.10f;
+                updateView();
+                break;
 
             case SDL_MOUSEBUTTONDOWN:
                 if( m_Event.button.button == SDL_BUTTON_LEFT ) {
@@ -76,12 +81,9 @@ Controller::cameraIsometric(glm::vec3 & moveClick, bool & running) {
                           d = sqrt(d*d + m_CameraPosition.z * m_CameraPosition.z);
                         auto pos = m_CameraPosition + t * worldRay;
                         moveClick = glm::vec3(pos.x, pos.y, 0.0f);
-
                     break;
                 }
-
             default: break;
-
         } //switch
 
     } // Pollevent
@@ -120,7 +122,6 @@ Controller::cameraFPS( bool &running) {
                 }
                 m_Forward = glm::vec3(m_View[0][2], m_View[1][2], m_View[2][2]);
                 m_Sideward = glm::vec3(m_View[0][0], m_View[1][0], m_View[2][0]);
-//                m_CameraPosition = glm::vec3(invMat[2][0],invMat[2][1],invMat[2][2]);
 
                 m_CameraPosition += (dz * m_Forward + dx *m_Sideward) * 0.10f;
                 updateView();
@@ -139,18 +140,29 @@ Controller::cameraFPS( bool &running) {
     } // Pollevent
 }
 
+//void
+//Controller::updateView(){
+
+//    glm::quat qPitch = glm::angleAxis(-m_Pitch, glm::vec3(1,0,0));
+//    glm::quat qYaw = glm::angleAxis(m_Yaw, glm::vec3(0,0,1));
+////    glm::quat qRoll = glm::angleAxis( roll, glm::vec3(0,0,1));
+//    glm::quat orientation = qPitch*qYaw;
+//    orientation = glm::normalize( orientation );
+//    glm::mat4 rotate = glm::mat4_cast(orientation);
+//    glm::mat4 translate(1.0f);
+//    translate = glm::translate(translate, -m_CameraPosition );
+
+//     m_View = rotate * translate;
+////     m_View = glm::lookAt( m_CameraPosition,
+////                           glm::vec3(0.0f, 30.0f, 0.0f),
+////                           glm::vec3(0.0f, 1.0f, 0.0f) );
+
+//}
 
 void
 Controller::updateView(){
 
-    glm::quat qPitch = glm::angleAxis(-m_Pitch, glm::vec3(1,0,0));
-    glm::quat qYaw = glm::angleAxis(m_Yaw, glm::vec3(0,0,1));
-//    glm::quat qRoll = glm::angleAxis( roll, glm::vec3(0,0,1));
-    glm::quat orientation = qPitch*qYaw;
-    orientation = glm::normalize( orientation );
-    glm::mat4 rotate = glm::mat4_cast(orientation);
-    glm::mat4 translate(1.0f);
-    translate = glm::translate(translate, -m_CameraPosition );
-
-     m_View = rotate * translate;
+    m_View = glm::lookAt( m_CameraPosition,
+                           m_LookAt,
+                           glm::vec3(0.0f, 1.0f, 0.0f) );
 }

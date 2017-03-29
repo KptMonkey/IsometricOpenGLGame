@@ -31,4 +31,5 @@ private:
     glm::mat4 m_View;
     SDL_Event m_Event;
     glm::mat4 m_Projection;
+    glm::vec3 m_LookAt;
 };

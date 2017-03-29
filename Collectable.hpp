@@ -3,14 +3,12 @@
 #include "Level/HeightMap.hpp"
 #include <vector>
 #include "Controller/Controller.hpp"
-enum class PowerUp {
-    GROW
-};
+#include "Player.hpp"
 
-class Player : public IGlobalRenderable {
+class Collectable : public IGlobalRenderable {
 public:
     void
-    init();
+    init(HeightMap &height);
 
     void
     render(HeightMap & height, glm::vec3 clickPos, RenderContext & ctx, Controller &control);
@@ -21,20 +19,20 @@ public:
     draw(Shader &shader, RenderContext &rctx) override;
 
     void
-    drawPlayer(RenderContext & rctx, Controller & input);
+    drawCollectable(RenderContext & rctx, Controller & input);
 
     void
-    updatePosition(HeightMap & height, glm::vec3 clickPos, Controller &control);
+    intersect(Player & player);
 
     glm::mat4 model;
 
     Shader m_Shader;
-    glm::vec3 m_PlayerPos;
-    PowerUp m_powerUp;
+    bool collected;
 private:
 
     glm::mat4 m_ModelMatrix;
     VertexArray m_VertexArray;
+    glm::vec3 m_CollectablePos;
 
     std::vector<float> m_Model = {
         -0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,

@@ -4,14 +4,18 @@
 #include "Player.hpp"
 #include <glm/gtc/matrix_transform.hpp>
 #include <iostream>
+#include "Collectable.hpp"
+
 int main() {
 
     //TODO: Create player, level classes which draw them selves
     RenderContext rctx;
     Controller playerInput;
-    HeightMap terrain("./media/level/firstheightmap.jpg");
+    HeightMap terrain("./media/level/firstheightmap.jpg"); // name sucks
     Player player;
     player.init();
+    Collectable colTest;
+    colTest.init(terrain); // height, view and projection need a global access
 
     //DepthMap and DepthMap visualization
     Shader depthShader;
@@ -35,34 +39,31 @@ int main() {
     std::vector<std::unique_ptr<IGlobalRenderable>> world;
     world.emplace_back(&terrain);
     world.emplace_back(&player);
+    world.emplace_back(&colTest);
 
-    Texture gras;
-    gras.load2DTextureAlpha("./media/level/gras.png");
 
     SDL_SetRelativeMouseMode(SDL_TRUE);
-//    SDL_ShowCursor(SDL_ENABLE);
-//    SDL_SetRelativeMouseMode(SDL_FALSE);
-    glCullFace(GL_BACK);
-    float wind = 0.0f;
+    SDL_ShowCursor(SDL_ENABLE);
+    SDL_SetRelativeMouseMode(SDL_FALSE);
+//    glCullFace(GL_BACK);
     int i = 0;
     rctx.enableDepthTest();
     while ( running ) {
-        wind +=0.008f;
-//        player.updatePosition(terrain,moveClick, playerInput);
+        player.updatePosition(terrain,moveClick, playerInput);
         //Light should have its own struct or so..
-        glm::vec3 lightPos=glm::vec3(std::cos(i*0.003f)*70.0f-128.0f, 128, 100.0f);
+        glm::vec3 lightPos=glm::vec3(0.0f, 160.0f, 120.0f);
         ++i;
-        glm::mat4 lightProjection = glm::ortho(-128.0f, 128.0f, -66.0f, 58.0f, 100.1f, 400.0f);
+        glm::mat4 lightProjection = glm::ortho(-160.0f, 160.0f, -166.0f, 158.0f, 120.1f, 380.0f);
         glm::mat4 lightView = glm::lookAt( lightPos,
-                                           glm::vec3(0.0f, 0.0f, 0.0f),
+                                           glm::vec3(0.0f, 20.0f, 0.0f),
                                            glm::vec3(0.0f, 1.0f, 0.0f) );
 
         glm::mat4 lightSpace = lightProjection * lightView;
 
-//        playerInput.cameraIsometric(moveClick, running);
-        playerInput.cameraFPS(running);
-        playerInput.m_CameraPosition.z = terrain.getHeight(playerInput.m_CameraPosition.x, playerInput.m_CameraPosition.y) + 1.5f;
-        playerInput.updateView();
+        playerInput.cameraIsometric(moveClick, running);
+//        playerInput.cameraFPS(running);
+//        playerInput.m_CameraPosition.z = terrain.getHeight(playerInput.m_CameraPosition.x, playerInput.m_CameraPosition.y) + 1.5f;
+//        playerInput.updateView();
 
         glViewport(0,0,2024,2024);
         depthShader.activate();
@@ -75,26 +76,18 @@ int main() {
         }
         depthFBO.unbind();
 
+        glViewport(0,0,800,600);
 //        rctx.drawDepthMap(debug, depth);
 
-        glViewport(0,0,800,600);
 
         rctx.clearColor(0.1f, 0.3f, 0.3f, 1.0f);
         rctx.clearColorBuffer();
         rctx.clearDepthBuffer();
 
-        terrain.drawTerrain(rctx, depth, playerInput, lightSpace, lightPos);
-        terrain.GrasShader.activate();
-        glm::mat4 model(1.0f);
-        terrain.GrasShader["wind"]=wind;
-        terrain.GrasShader["model"]=model;
-        terrain.GrasShader["view"]=playerInput.getView();
-        terrain.GrasShader["projection"]=playerInput.getProjection();
-        terrain.GrasShader["gras"]=0;
-        gras.activate(0);
-        terrain.m_GrasArray.bindVertexArray();
-        rctx.draw(terrain.m_GrasArray, PrimitiveType::Points);
+        terrain.drawTerrain(rctx, depth, playerInput, lightSpace, lightPos); // The scene manager would be here nice too
         player.drawPlayer(rctx, playerInput);
+        colTest.drawCollectable(rctx,playerInput);
+        colTest.intersect(player); // A scene manager should manage this stuff
 
         rctx.swapBuffers();
     }

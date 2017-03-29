@@ -19,15 +19,17 @@ HeightMap::HeightMap(std::string path) :
     m_GrasArray.createVertexArray(m_GrasPosition);
     m_GrasArray.describeVertexArray(0, 3, GlTypes::Float,3, GlBool::False,0);
 
-    GrasShader.bindShader("./shader/gras.vert");
-    GrasShader.bindShader("./shader/gras.geom");
-    GrasShader.bindShader("./shader/gras.frag");
+    m_GrasShader.bindShader("./shader/gras.vert");
+    m_GrasShader.bindShader("./shader/gras.geom");
+    m_GrasShader.bindShader("./shader/gras.frag");
 
     m_Shader.bindShader("./shader/shadowMapFloor.vert");
     m_Shader.bindShader("./shader/shadowMapFloor.frag");
 
     m_GrasTexture.load2DTexture("./media/level/gras.jpeg");
     m_StoneTexture.load2DTexture("./media/level/stone.jpeg");
+    m_GrasPatchTexutre.load2DTextureAlpha("./media/level/gras.png");
+
 }
 
 
@@ -167,5 +169,16 @@ HeightMap::drawTerrain(RenderContext & rctx, Texture & depthTexture, Controller 
 
     m_VertexArray.bindVertexArray();
     rctx.drawIndex(PrimitiveType::TiangleStrip,m_Indices.size());
+
+    m_GrasShader.activate();
+    m_GrasShader["wind"]=0.0f;
+    m_GrasShader["model"]=m_ModelMatrix;
+    m_GrasShader["view"]=input.getView();
+    m_GrasShader["projection"]=input.getProjection();
+    m_GrasShader["gras"]=0;
+    m_GrasPatchTexutre.activate(0);
+    m_GrasArray.bindVertexArray();
+    rctx.draw(m_GrasArray, PrimitiveType::Points);
+
 
 }

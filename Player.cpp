@@ -15,7 +15,7 @@ Player::init() {
 }
 
 void
-Player::updatePosition(HeightMap & height, glm::vec3 clickPos, Controller &control) {
+Player::updatePosition(HeightMap & height, glm::vec3 clickPos) {
 
     m_ModelMatrix=glm::mat4(1.0f);
     m_PlayerPos += (clickPos - m_PlayerPos) * 0.01f;
@@ -33,14 +33,28 @@ Player::draw(Shader &shader, RenderContext &rctx) {
     shader["model"]=m_ModelMatrix;
     m_VertexArray.bindVertexArray();
     rctx.draw(m_VertexArray, PrimitiveType::Triangles);
+    for(auto  & bullet : m_Bullets) {
+        bullet.updatePosition();
+        bullet.draw(shader,rctx);
+    }
+
 }
 
 void
-Player::drawPlayer(RenderContext & rctx, Controller & input) {
+Player::drawPlayer(RenderContext & rctx, const glm::mat4 &view, const glm::mat4 &projection) {
     m_Shader.activate();
     m_Shader["model"] = m_ModelMatrix;
-    m_Shader["view"] = input.getView();
-    m_Shader["projection"] = input.getProjection();
+    m_Shader["view"] = view;
+    m_Shader["projection"] = projection;
     m_VertexArray.bindVertexArray();
     rctx.draw(m_VertexArray, PrimitiveType::Triangles);
+    for(auto  & bullet : m_Bullets) {
+        bullet.updatePosition();
+        bullet.drawBullet(rctx, view, projection);
+    }
+}
+
+void
+Player::shoot(const glm::vec3 &shootDirection) {
+    m_Bullets.emplace_back(shootDirection, m_PlayerPos);
 }

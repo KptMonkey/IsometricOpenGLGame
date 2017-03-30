@@ -149,14 +149,20 @@ HeightMap::draw(Shader & shader, RenderContext & rctx) {
 }
 
 void
-HeightMap::drawTerrain(RenderContext & rctx, Texture & depthTexture, Controller & input, const glm::mat4 &lightView, const glm::vec3 &lightPos) {
+HeightMap::drawTerrain(RenderContext & rctx,
+                          Texture &depthTexture,
+                          glm::mat4 const & view,
+                          glm::mat4 const & projection,
+                          glm::mat4 const & lightView,
+                          glm::vec3 const & lightPos,
+                          glm::vec3 const & viewPos) {
     m_Shader.activate();
     m_Shader["model"] = m_ModelMatrix;
     m_Shader["Color"] = glm::vec4(0.0f, 0.0f, 1.0f, 1.0f);
-    m_Shader["projection"] = input.getProjection();
-    m_Shader["viewPos"] = input.m_CameraPosition;
+    m_Shader["projection"] = projection;
+    m_Shader["viewPos"] = viewPos;
     m_Shader["lightSpace"] = lightView;
-    m_Shader["view"] = input.getView();
+    m_Shader["view"] = view;
     m_Shader["lightPos"] = lightPos;
 
     // Don't forget that the order is important
@@ -173,8 +179,8 @@ HeightMap::drawTerrain(RenderContext & rctx, Texture & depthTexture, Controller 
     m_GrasShader.activate();
     m_GrasShader["wind"]=0.0f;
     m_GrasShader["model"]=m_ModelMatrix;
-    m_GrasShader["view"]=input.getView();
-    m_GrasShader["projection"]=input.getProjection();
+    m_GrasShader["view"]=view;
+    m_GrasShader["projection"]=projection;
     m_GrasShader["gras"]=0;
     m_GrasPatchTexutre.activate(0);
     m_GrasArray.bindVertexArray();

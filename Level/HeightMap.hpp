@@ -4,7 +4,6 @@
 #include <vector>
 #include "VertexArray.hpp"
 #include "IGlobalRenderable.hpp"
-#include "Controller/Controller.hpp"
 
 class HeightMap : public IGlobalRenderable
 {
@@ -29,9 +28,11 @@ public:
    void
    drawTerrain(RenderContext & rctx,
                Texture &depthTexture,
-               Controller & input,
+               glm::mat4 const & view,
+               glm::mat4 const & projection,
                glm::mat4 const & lightView,
-               glm::vec3 const & lightPos);
+               glm::vec3 const & lightPos,
+               glm::vec3 const & viewPos);
 
    std::vector<VertexT> m_Vertices;
    std::vector<unsigned int> m_Indices;

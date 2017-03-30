@@ -18,11 +18,14 @@ Controller::Controller() :
     m_Projection = glm::perspective( 45.0f, 0.75f, 0.001f, 150.0f );
 }
 
+// This function handles to much stuff, has to be splitted
+// Time to refactor stuffs get messy ;_;
 void
-Controller::cameraIsometric(glm::vec3 & moveClick, bool & running) {
+Controller::cameraIsometric(glm::vec3 & moveClick, bool & running, Player &player) {
     while (SDL_PollEvent(&m_Event)) {
         float dx = 0.0f;
         float dy = 0.0f;
+        glm::vec3 shootDir;
         switch (m_Event.type) {
 
             case SDL_QUIT:
@@ -81,7 +84,32 @@ Controller::cameraIsometric(glm::vec3 & moveClick, bool & running) {
                           d = sqrt(d*d + m_CameraPosition.z * m_CameraPosition.z);
                         auto pos = m_CameraPosition + t * worldRay;
                         moveClick = glm::vec3(pos.x, pos.y, 0.0f);
-                    break;
+                }
+                if (m_Event.button.button == SDL_BUTTON_RIGHT) {
+                    int x = m_Event.motion.x;
+                    int y = m_Event.motion.y;
+                    float ndcX = ( x/800.0 - 0.5f ) * 2.0f;
+                    float ndcY = ( 0.5f -y/600.0f ) * 2.0f;
+                    glm::vec4 homo( ndcX, ndcY, -1.0f, 1.0f );
+                    glm::vec4 viewS = glm::inverse( m_Projection) * homo;
+                    glm::vec4 world = glm::inverse(m_View) * glm::vec4(viewS.x,
+                                                                     viewS.y,
+                                                                     -1.0f,
+                                                                     0.0f);
+                    glm::vec3 worldRay(world.x, world.y, world.z);
+                    worldRay = glm::normalize( worldRay );
+
+                    float t = -(glm::dot(m_CameraPosition, glm::vec3(0.0f, 0.0f, 1.0f ) )/
+                              glm::dot( worldRay , glm::vec3( 0.0f, 0.0f, 1.0f)));
+                    float d = 1.0f;
+                          d = sqrt(d*d + m_CameraPosition.z * m_CameraPosition.z);
+                        auto pos = m_CameraPosition + t * worldRay;
+                        shootDir = glm::vec3(pos.x, pos.y, 0.0f);
+                        std::cout << shootDir.x << " " << shootDir.y <<std::endl;
+
+                        // move stuff to an intersection function
+                        player.shoot(shootDir);
+
                 }
             default: break;
         } //switch

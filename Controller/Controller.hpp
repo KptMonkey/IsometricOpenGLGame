@@ -1,13 +1,14 @@
 #pragma once
 #include <glm/glm.hpp>
 #include <SDL2/SDL.h>
+#include "Player.hpp"
 
 class Controller {
 public:
     Controller();
 
     void
-    cameraIsometric(glm::vec3 & moveClick, bool & running );
+    cameraIsometric(glm::vec3 & moveClick, bool & running, Player  & player );
 
     void
     cameraFPS( bool & running);

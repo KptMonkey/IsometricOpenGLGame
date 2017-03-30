@@ -11,8 +11,8 @@ int main() {
     //TODO: Create player, level classes which draw them selves
     RenderContext rctx;
     Controller playerInput;
-    HeightMap terrain("./media/level/firstheightmap.jpg"); // name sucks
     Player player;
+    HeightMap terrain("./media/level/firstheightmap.jpg"); // name sucks
     player.init();
     Collectable colTest;
     colTest.init(terrain); // height, view and projection need a global access
@@ -49,7 +49,7 @@ int main() {
     int i = 0;
     rctx.enableDepthTest();
     while ( running ) {
-        player.updatePosition(terrain,moveClick, playerInput);
+        player.updatePosition(terrain,moveClick);
         //Light should have its own struct or so..
         glm::vec3 lightPos=glm::vec3(0.0f, 160.0f, 120.0f);
         ++i;
@@ -60,7 +60,7 @@ int main() {
 
         glm::mat4 lightSpace = lightProjection * lightView;
 
-        playerInput.cameraIsometric(moveClick, running);
+        playerInput.cameraIsometric(moveClick, running,player);
 //        playerInput.cameraFPS(running);
 //        playerInput.m_CameraPosition.z = terrain.getHeight(playerInput.m_CameraPosition.x, playerInput.m_CameraPosition.y) + 1.5f;
 //        playerInput.updateView();
@@ -84,8 +84,8 @@ int main() {
         rctx.clearColorBuffer();
         rctx.clearDepthBuffer();
 
-        terrain.drawTerrain(rctx, depth, playerInput, lightSpace, lightPos); // The scene manager would be here nice too
-        player.drawPlayer(rctx, playerInput);
+        terrain.drawTerrain(rctx, depth, playerInput.getView(),playerInput.getProjection(), lightSpace, lightPos,playerInput.m_CameraPosition); // The scene manager would be here nice too
+        player.drawPlayer(rctx, playerInput.getView(), playerInput.getProjection());
         colTest.drawCollectable(rctx,playerInput);
         colTest.intersect(player); // A scene manager should manage this stuff
 

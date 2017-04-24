@@ -21,7 +21,7 @@ Collectable::init(HeightMap & height) {
 
 }
 void
-Collectable::intersect(Player &player) {
+Collectable::intersect(Player & player) {
     if( std::abs(player.m_PlayerPos.x - 5.0f)< 2.5f && std::abs(player.m_PlayerPos.y - 5.0f)< 2.5f ) {
         player.m_powerUp = PowerUp::GROW;
         collected = true;

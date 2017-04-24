@@ -5,6 +5,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <iostream>
 #include "Collectable.hpp"
+#include "Enemy.hpp"
 
 int main() {
 
@@ -15,7 +16,10 @@ int main() {
     HeightMap terrain("./media/level/firstheightmap.jpg"); // name sucks
     player.init();
     Collectable colTest;
-    colTest.init(terrain); // height, view and projection need a global access
+    colTest.init(terrain); // height, view and projection need a global access4
+
+    Enemy testEnemy;
+    testEnemy.init(terrain);
 
     //DepthMap and DepthMap visualization
     Shader depthShader;
@@ -40,6 +44,7 @@ int main() {
     world.emplace_back(&terrain);
     world.emplace_back(&player);
     world.emplace_back(&colTest);
+    world.emplace_back(&testEnemy);
 
 
     SDL_SetRelativeMouseMode(SDL_TRUE);
@@ -88,6 +93,8 @@ int main() {
         player.drawPlayer(rctx, playerInput.getView(), playerInput.getProjection());
         colTest.drawCollectable(rctx,playerInput);
         colTest.intersect(player); // A scene manager should manage this stuff
+        testEnemy.drawEnemy(rctx,playerInput.getView(), playerInput.getProjection());
+        testEnemy.intersect(player.m_Bullets);
 
         rctx.swapBuffers();
     }

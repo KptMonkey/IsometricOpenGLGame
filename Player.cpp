@@ -41,7 +41,7 @@ Player::draw(Shader &shader, RenderContext &rctx) {
 }
 
 void
-Player::drawPlayer(RenderContext & rctx, const glm::mat4 &view, const glm::mat4 &projection) {
+Player::drawPlayer(RenderContext & rctx, const glm::mat4 & view, const glm::mat4 & projection) {
     m_Shader.activate();
     m_Shader["model"] = m_ModelMatrix;
     m_Shader["view"] = view;

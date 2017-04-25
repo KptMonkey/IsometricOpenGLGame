@@ -2,19 +2,20 @@
 #include <glm/glm.hpp>
 #include <SDL2/SDL.h>
 #include "Player.hpp"
+#include "Camera/Camera.hpp"
 
 class Controller {
 public:
     Controller();
 
     void
-    cameraIsometric(glm::vec3 & moveClick, bool & running, Player  & player );
+    cameraIsometric(glm::vec3 & moveClick, bool & running, Player & player, Camera & camera );
 
     void
     cameraFPS( bool & running);
 
     void
-    updateView();
+    updateView(Camera & camera);
 
     glm::mat4
     getView() { return m_View;}

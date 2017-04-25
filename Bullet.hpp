@@ -8,10 +8,10 @@ public:
     Bullet(glm::vec3 const & shootDirection, glm::vec3 const  playerPos);
 
     void
-    draw(Shader &shader, RenderContext &rctx) override;
+    drawShadow(Shader &shader, RenderContext &rctx) override;
 
     void
-    drawBullet(RenderContext & rctx, glm::mat4 const & view, glm::mat4 const & projection);
+    draw(Camera const & camera, RenderContext & rctx) override;
 
     void
     updatePosition();

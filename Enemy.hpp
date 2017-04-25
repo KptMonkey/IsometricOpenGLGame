@@ -10,10 +10,10 @@ public:
     init(HeightMap &height);
 
     void
-    draw(Shader &shader, RenderContext &rctx) override;
+    drawShadow(Shader &shader, RenderContext &rctx) override;
 
     void
-    drawEnemy(RenderContext & rctx, glm::mat4 const & view, glm::mat4 const & projection);
+    draw(Camera const & camera, RenderContext & rctx) override;
 
     void
     intersect(std::vector<Bullet> &bullets);
@@ -28,7 +28,7 @@ private:
     glm::mat4 m_ModelMatrix;
     VertexArray m_VertexArray;
     glm::vec3 m_EnemyPos;
-
+    // Gegner sollten auf das gleiche Model zugreifen...
     std::vector<float> m_Model = {
         -0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
          0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,

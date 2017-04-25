@@ -19,24 +19,22 @@ void
 Bullet::updatePosition() {
     m_ModelMatrix=glm::mat4(1.0f);
     m_BulletPos += (m_BulletDirection) * 0.1f;
-//    m_BulletPos += (glm::vec3(1.0f,0.0f,0.0f)) * 0.1f;
     m_ModelMatrix = glm::translate(m_ModelMatrix, m_BulletPos);
-//    m_ModelMatrix = glm::scale(m_ModelMatrix, glm::vec3(0.5f));
 }
 
 void
-Bullet::draw(Shader &shader, RenderContext &rctx) {
+Bullet::drawShadow(Shader &shader, RenderContext &rctx) {
     shader["model"]=m_ModelMatrix;
     m_VertexArray.bindVertexArray();
     rctx.draw(m_VertexArray, PrimitiveType::Triangles);
 }
 
 void
-Bullet::drawBullet(RenderContext & rctx, glm::mat4 const & view, glm::mat4 const & projection) {
+Bullet::draw(Camera const & camera, RenderContext & rctx) {
     m_Shader.activate();
     m_Shader["model"] = m_ModelMatrix;
-    m_Shader["view"] = view;
-    m_Shader["projection"] = projection;
+    m_Shader["view"] = camera.View;
+    m_Shader["projection"] = camera.Projection;
     m_VertexArray.bindVertexArray();
     rctx.draw(m_VertexArray, PrimitiveType::Triangles);
 }

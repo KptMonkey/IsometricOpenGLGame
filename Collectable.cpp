@@ -29,7 +29,7 @@ Collectable::intersect(Player & player) {
 }
 
 void
-Collectable::draw(Shader &shader, RenderContext &rctx) {
+Collectable::drawShadow(Shader &shader, RenderContext &rctx) {
     if(collected) return;
     shader["model"]=m_ModelMatrix;
     m_VertexArray.bindVertexArray();
@@ -37,13 +37,13 @@ Collectable::draw(Shader &shader, RenderContext &rctx) {
 }
 
 void
-Collectable::drawCollectable(RenderContext & rctx, Controller & input) {
+Collectable::draw(Camera const & camera, RenderContext & rctx) {
  if (collected) return;
     m_ModelMatrix = glm::rotate(m_ModelMatrix,0.01f,glm::vec3(0.0f,0.0f,1.0f));
     m_Shader.activate();
     m_Shader["model"] = m_ModelMatrix;
-    m_Shader["view"] = input.getView();
-    m_Shader["projection"] = input.getProjection();
+    m_Shader["view"] = camera.View;
+    m_Shader["projection"] = camera.Projection;
     m_VertexArray.bindVertexArray();
     rctx.draw(m_VertexArray, PrimitiveType::Triangles);
 }

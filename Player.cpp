@@ -29,28 +29,28 @@ Player::updatePosition(HeightMap & height, glm::vec3 clickPos) {
 }
 
 void
-Player::draw(Shader &shader, RenderContext &rctx) {
+Player::drawShadow(Shader &shader, RenderContext &rctx) {
     shader["model"]=m_ModelMatrix;
     m_VertexArray.bindVertexArray();
     rctx.draw(m_VertexArray, PrimitiveType::Triangles);
     for(auto  & bullet : m_Bullets) {
         bullet.updatePosition();
-        bullet.draw(shader,rctx);
+        bullet.drawShadow(shader,rctx);
     }
 
 }
 
 void
-Player::drawPlayer(RenderContext & rctx, const glm::mat4 & view, const glm::mat4 & projection) {
+Player::draw(Camera const & camera, RenderContext & rctx) {
     m_Shader.activate();
     m_Shader["model"] = m_ModelMatrix;
-    m_Shader["view"] = view;
-    m_Shader["projection"] = projection;
+    m_Shader["view"] = camera.View;
+    m_Shader["projection"] = camera.Projection;
     m_VertexArray.bindVertexArray();
     rctx.draw(m_VertexArray, PrimitiveType::Triangles);
     for(auto  & bullet : m_Bullets) {
         bullet.updatePosition();
-        bullet.drawBullet(rctx, view, projection);
+        bullet.draw(camera, rctx);
     }
 }
 

@@ -2,7 +2,6 @@
 #include "RenderAbstraction/RenderAbstraction.hpp"
 #include "Level/HeightMap.hpp"
 #include <vector>
-#include "Controller/Controller.hpp"
 #include "Player.hpp"
 
 class Collectable : public IGlobalRenderable {
@@ -11,10 +10,10 @@ public:
     init(HeightMap &height);
 
     void
-    draw(Shader &shader, RenderContext &rctx) override;
+    drawShadow(Shader &shader, RenderContext &rctx) override;
 
     void
-    drawCollectable(RenderContext & rctx, Controller & input);
+    draw(Camera const & camera, RenderContext & rctx) override;
 
     void
     intersect(Player & player);

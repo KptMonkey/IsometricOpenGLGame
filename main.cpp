@@ -6,18 +6,18 @@
 #include <iostream>
 #include "Collectable.hpp"
 #include "Enemy.hpp"
+#include "Camera/Camera.hpp"
 
 int main() {
-
-    //TODO: Create player, level classes which draw them selves
     RenderContext rctx;
     Controller playerInput;
+    Camera camera(glm::vec3(0.0f, 0.0f, 30.0f), glm::vec3(0.0f, 30.0f, 0.0f));
+
     Player player;
     HeightMap terrain("./media/level/firstheightmap.jpg"); // name sucks
     player.init();
     Collectable colTest;
-    colTest.init(terrain); // height, view and projection need a global access4
-
+    colTest.init(terrain);
     Enemy testEnemy;
     testEnemy.init(terrain);
 
@@ -33,6 +33,7 @@ int main() {
 
     Texture depth;
     depth.createDepthTexture(2024, 2024);
+    terrain.setDepthTexture(depth);
 
     FrameBuffer depthFBO;
     depthFBO.createDepthFrameBuffer(depth);
@@ -51,49 +52,33 @@ int main() {
     SDL_ShowCursor(SDL_ENABLE);
     SDL_SetRelativeMouseMode(SDL_FALSE);
 //    glCullFace(GL_BACK);
-    int i = 0;
     rctx.enableDepthTest();
     while ( running ) {
         player.updatePosition(terrain,moveClick);
-        //Light should have its own struct or so..
-        glm::vec3 lightPos=glm::vec3(0.0f, 160.0f, 120.0f);
-        ++i;
-        glm::mat4 lightProjection = glm::ortho(-160.0f, 160.0f, -166.0f, 158.0f, 120.1f, 380.0f);
-        glm::mat4 lightView = glm::lookAt( lightPos,
-                                           glm::vec3(0.0f, 20.0f, 0.0f),
-                                           glm::vec3(0.0f, 1.0f, 0.0f) );
 
-        glm::mat4 lightSpace = lightProjection * lightView;
-
-        playerInput.cameraIsometric(moveClick, running,player);
-//        playerInput.cameraFPS(running);
-//        playerInput.m_CameraPosition.z = terrain.getHeight(playerInput.m_CameraPosition.x, playerInput.m_CameraPosition.y) + 1.5f;
-//        playerInput.updateView();
+        playerInput.cameraIsometric(moveClick, running,player,camera);
 
         glViewport(0,0,2024,2024);
         depthShader.activate();
-        depthShader["lightSpace"]=lightSpace;
+        depthShader["lightSpace"]=terrain.getLightSpace();
 
         depthFBO.bind();
         rctx.clearDepthBuffer(); // fucking wichtig
         for (auto & e : world) {
-            e->draw(depthShader, rctx);
+            e->drawShadow(depthShader, rctx);
         }
         depthFBO.unbind();
 
         glViewport(0,0,800,600);
 //        rctx.drawDepthMap(debug, depth);
-
-
         rctx.clearColor(0.1f, 0.3f, 0.3f, 1.0f);
         rctx.clearColorBuffer();
         rctx.clearDepthBuffer();
 
-        terrain.drawTerrain(rctx, depth, playerInput.getView(),playerInput.getProjection(), lightSpace, lightPos,playerInput.m_CameraPosition); // The scene manager would be here nice too
-        player.drawPlayer(rctx, playerInput.getView(), playerInput.getProjection());
-        colTest.drawCollectable(rctx,playerInput);
+        for ( auto & e : world) {
+            e->draw(camera, rctx);
+        }
         colTest.intersect(player); // A scene manager should manage this stuff
-        testEnemy.drawEnemy(rctx,playerInput.getView(), playerInput.getProjection());
         testEnemy.intersect(player.m_Bullets);
 
         rctx.swapBuffers();

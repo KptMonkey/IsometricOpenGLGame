@@ -31,20 +31,20 @@ Enemy::intersect(std::vector<Bullet> &bullets) {
 }
 
 void
-Enemy::draw(Shader &shader, RenderContext &rctx) {
-    if(m_Hit) return;
+Enemy::drawShadow(Shader &shader, RenderContext &rctx) {
+    if(m_Hit) return; // placeholder
     shader["model"]=m_ModelMatrix;
     m_VertexArray.bindVertexArray();
     rctx.draw(m_VertexArray, PrimitiveType::Triangles);
 }
 
 void
-Enemy::drawEnemy(RenderContext & rctx, glm::mat4 const & view, glm::mat4 const & projection) {
+Enemy::draw(Camera const & camera, RenderContext & rctx) {
  if (m_Hit) return;
     m_Shader.activate();
     m_Shader["model"] = m_ModelMatrix;
-    m_Shader["view"] = view;
-    m_Shader["projection"] = projection;
+    m_Shader["view"] = camera.View;
+    m_Shader["projection"] = camera.Projection;
     m_VertexArray.bindVertexArray();
     rctx.draw(m_VertexArray, PrimitiveType::Triangles);
 }

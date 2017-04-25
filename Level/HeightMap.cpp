@@ -4,9 +4,13 @@
 #include <random>
 #include <fstream>
 #include <random>
+#include <glm/gtc/matrix_transform.hpp>
+
 
 HeightMap::HeightMap(std::string path) :
     m_ModelMatrix(glm::mat4(1.0f))
+  , m_LightPosition(glm::vec3(-160.0f, 160.0f, 300.0f))
+  , m_LightProjection(glm::ortho(-160.0f, 160.0f, -160.0f, 160.0f, 250.0f, 500.0f))
 
 {
     loadHeightMapFromImage(path);
@@ -29,6 +33,9 @@ HeightMap::HeightMap(std::string path) :
     m_GrasTexture.load2DTexture("./media/level/gras.jpeg");
     m_StoneTexture.load2DTexture("./media/level/stone.jpeg");
     m_GrasPatchTexutre.load2DTextureAlpha("./media/level/gras.png");
+    m_LightView = glm::lookAt(m_LightPosition,
+                              glm::vec3(0.0f, 0.0f, 0.0f),
+                              glm::vec3(0.0f, 1.0f, 0.0f));
 
 }
 
@@ -61,7 +68,7 @@ HeightMap::loadHeightMapFromImage(std::string const & path) {
             m_Heights[j][m_Rows-i-1] = m_pHeight;
             if (m_pHeight < 4.3f)
                 m_GrasPosition.push_back(glm::vec3(j-halfWidth, i-halfHeight, m_pHeight));
-            else if( m_pHeight >4.3 && m_pHeight < 6 && i%5==0)
+            else if (m_pHeight >4.3 && m_pHeight < 6 && i%5==0)
                 m_GrasPosition.push_back(glm::vec3(j-halfWidth, i-halfHeight, m_pHeight));
 
             temp.Position = glm::vec3(j-halfWidth, i-halfHeight, m_pHeight);
@@ -69,11 +76,11 @@ HeightMap::loadHeightMapFromImage(std::string const & path) {
             auto pos1 = glm::vec3(j-halfWidth, i-halfHeight, m_pHeight);
             glm::vec3 pos2;
             glm::vec3 pos3;
-            if( i == m_Rows || j == m_Columns ) {
+            if ( i == m_Rows || j == m_Columns ) {
                 pos2 = glm::vec3((j)-halfWidth, (i-1)-halfHeight, m_pHeight);
                 pos3 = glm::vec3((j-1)-halfWidth, (i)-halfHeight, m_pHeight);
             }
-            else{
+            else {
                 pos2 = glm::vec3((j)-halfWidth, (1+i)-halfHeight, m_pHeight);
                 pos3 = glm::vec3((j-1)-halfWidth, (i)-halfHeight, m_pHeight);
             }
@@ -120,19 +127,15 @@ HeightMap::barryCentric(glm::vec3 p1, glm::vec3 p2, glm::vec3 p3, glm::vec2 pos)
 
 void
 HeightMap::createIndicies() {
-
     for ( int y = 0; y < m_Rows -1; ++y) {
-
         if( y % 2 == 0 ) {
             for ( int x = 0; x<m_Columns; ++x) {
-
                m_Indices.push_back(x+(y*m_Columns));
                m_Indices.push_back(x+(y*m_Columns) + m_Columns);
             }
         }
         else {
             for (int x = m_Columns-1; x >=0; x-- ) {
-
                 m_Indices.push_back(x+(y*m_Columns));
                 m_Indices.push_back(x+(y*m_Columns) + m_Columns);
              }
@@ -141,7 +144,7 @@ HeightMap::createIndicies() {
 }
 
 void
-HeightMap::draw(Shader & shader, RenderContext & rctx) {
+HeightMap::drawShadow(Shader & shader, RenderContext & rctx) {
     //It would be possible to have more terrains......
     shader["model"] = m_ModelMatrix;
     m_VertexArray.bindVertexArray();
@@ -149,25 +152,19 @@ HeightMap::draw(Shader & shader, RenderContext & rctx) {
 }
 
 void
-HeightMap::drawTerrain(RenderContext & rctx,
-                          Texture &depthTexture,
-                          glm::mat4 const & view,
-                          glm::mat4 const & projection,
-                          glm::mat4 const & lightView,
-                          glm::vec3 const & lightPos,
-                          glm::vec3 const & viewPos) {
+HeightMap::draw(Camera const & camera, RenderContext & rctx) {
     m_Shader.activate();
     m_Shader["model"] = m_ModelMatrix;
     m_Shader["Color"] = glm::vec4(0.0f, 0.0f, 1.0f, 1.0f);
-    m_Shader["projection"] = projection;
-    m_Shader["viewPos"] = viewPos;
-    m_Shader["lightSpace"] = lightView;
-    m_Shader["view"] = view;
-    m_Shader["lightPos"] = lightPos;
+    m_Shader["projection"] = camera.Projection;
+    m_Shader["viewPos"] = camera.Position;
+    m_Shader["lightSpace"] = m_LightProjection* m_LightView;
+    m_Shader["view"] = camera.View;
+    m_Shader["lightPos"] = m_LightPosition;
 
     // Don't forget that the order is important
     m_Shader["shadowMap"]=0;
-    depthTexture.activate(0);
+    m_DepthTexture->activate(0);
     m_Shader["ground"] = 1;
     m_GrasTexture.activate(1);
     m_Shader["groundNormal"] = 2;
@@ -179,12 +176,10 @@ HeightMap::drawTerrain(RenderContext & rctx,
     m_GrasShader.activate();
     m_GrasShader["wind"]=0.0f;
     m_GrasShader["model"]=m_ModelMatrix;
-    m_GrasShader["view"]=view;
-    m_GrasShader["projection"]=projection;
+    m_GrasShader["view"]=camera.View;
+    m_GrasShader["projection"]=camera.Projection;
     m_GrasShader["gras"]=0;
     m_GrasPatchTexutre.activate(0);
     m_GrasArray.bindVertexArray();
     rctx.draw(m_GrasArray, PrimitiveType::Points);
-
-
 }

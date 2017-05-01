@@ -39,7 +39,7 @@ add_executable( game ${PROJECT_SOURCE_DIR}/main.cpp
                 RenderAbstraction/Texture
                 RenderAbstraction/RenderAbstraction
                 RenderAbstraction/FrameBuffer
-                Controller/Controller
+                Input/Input
                 Level/HeightMap
                 Player
                 IGlobalRenderable

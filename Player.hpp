@@ -1,8 +1,8 @@
 #pragma once
 #include "RenderAbstraction/RenderAbstraction.hpp"
 #include "Level/HeightMap.hpp"
-#include <vector>
 #include "Bullet.hpp"
+#include <vector>
 
 enum class PowerUp {
     GROW
@@ -10,8 +10,8 @@ enum class PowerUp {
 
 class Player : public IGlobalRenderable {
 public:
-    void
-    init();
+
+    Player(HeightMap & height);
 
     void
     drawShadow(Shader &shader, RenderContext &rctx) override;
@@ -20,23 +20,46 @@ public:
     draw(Camera const & camera, RenderContext & rctx) override;
 
     void
-    updatePosition(HeightMap & height, glm::vec3 clickPos);
+    updatePosition();
 
     void
     shoot(glm::vec3 const & shootDirection);
 
-    glm::mat4 model;
+    bool const
+    isHit();
 
-    Shader m_Shader;
-    glm::vec3 m_PlayerPos;
-    PowerUp m_powerUp;
-    std::vector<Bullet> m_Bullets;
+    void
+    hit();
+
+    glm::vec3 const &
+    getPosition() const;
+
+    float const
+    getHitBox();
+
+    glm::vec3
+    setNextPosition(glm::vec3 const & nextPosition);
+
+    std::vector<Bullet> const &
+    getBullets();
+
+    void
+    setPowerUp(PowerUp powerUp);
+
 private:
 
-    glm::mat4 m_ModelMatrix;
-    VertexArray m_VertexArray;
+    PowerUp             m_PowerUp;
+    std::vector<Bullet> m_Bullets;
+    glm::vec3           m_Position;
+    Shader              m_Shader;
+    VertexArray         m_VertexArray;
+    glm::mat4           m_ModelMatrix;
+    bool                m_Hit;
+    float               m_HitBox;
+    HeightMap&          m_Map;
+    glm::vec3           m_NextPosition;
 
-    std::vector<float> m_Model = {
+    std::vector<float>  m_Model = {
         -0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
          0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
          0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
@@ -80,5 +103,4 @@ private:
         -0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f
 
         };
-
 };

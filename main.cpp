@@ -1,5 +1,4 @@
 #include "RenderAbstraction.hpp"
-#include "Controller/Controller.hpp"
 #include "Level/HeightMap.hpp"
 #include "Player.hpp"
 #include <glm/gtc/matrix_transform.hpp>
@@ -7,19 +6,17 @@
 #include "Collectable.hpp"
 #include "Enemy.hpp"
 #include "Camera/Camera.hpp"
+#include "Input/Input.hpp"
 
 int main() {
     RenderContext rctx;
-    Controller playerInput;
+    Input input;
     Camera camera(glm::vec3(0.0f, 0.0f, 30.0f), glm::vec3(0.0f, 30.0f, 0.0f));
 
-    Player player;
     HeightMap terrain("./media/level/firstheightmap.jpg"); // name sucks
-    player.init();
-    Collectable colTest;
-    colTest.init(terrain);
-    Enemy testEnemy;
-    testEnemy.init(terrain);
+    Player player(terrain);
+    Collectable colTest(terrain);
+    Enemy testEnemy(terrain, glm::vec2(15.0f, 0.0f));
 
     //DepthMap and DepthMap visualization
     Shader depthShader;
@@ -32,31 +29,25 @@ int main() {
 
 
     Texture depth;
-    depth.createDepthTexture(2024, 2024);
+    depth.createDepthTexture(2048, 2048);
     terrain.setDepthTexture(depth);
 
     FrameBuffer depthFBO;
     depthFBO.createDepthFrameBuffer(depth);
 
     bool running = true;
-    glm::vec3 moveClick(0.0f);
 
-    std::vector<std::unique_ptr<IGlobalRenderable>> world;
+    std::vector<IGlobalRenderable*> world;
     world.emplace_back(&terrain);
     world.emplace_back(&player);
     world.emplace_back(&colTest);
     world.emplace_back(&testEnemy);
 
 
-    SDL_SetRelativeMouseMode(SDL_TRUE);
-    SDL_ShowCursor(SDL_ENABLE);
-    SDL_SetRelativeMouseMode(SDL_FALSE);
-//    glCullFace(GL_BACK);
     rctx.enableDepthTest();
     while ( running ) {
-        player.updatePosition(terrain,moveClick);
-
-        playerInput.cameraIsometric(moveClick, running,player,camera);
+        player.updatePosition();
+        input.updateInput(camera, player, running, terrain);
 
         glViewport(0,0,2024,2024);
         depthShader.activate();
@@ -79,7 +70,8 @@ int main() {
             e->draw(camera, rctx);
         }
         colTest.intersect(player); // A scene manager should manage this stuff
-        testEnemy.intersect(player.m_Bullets);
+        testEnemy.intersectWithBullet(player.getBullets());
+        testEnemy.lookForPlayer(player);
 
         rctx.swapBuffers();
     }

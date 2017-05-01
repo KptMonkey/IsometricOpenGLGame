@@ -4,9 +4,8 @@
 
 Bullet::Bullet(glm::vec3 const & shootDirection, glm::vec3 const  playerPos)
     : m_BulletPos(playerPos.x, playerPos.y, playerPos.z)
-     ,m_BulletDirection(glm::normalize(glm::vec3(shootDirection.x, shootDirection.y,0.0f) -glm::vec3(playerPos.x, playerPos.y, 0.0f)))
+     ,m_BulletDirection(glm::normalize(shootDirection - playerPos))
 {
-    std::cout << "Bullet: " <<shootDirection.x << " " << shootDirection.y <<std::endl;
     m_VertexArray.createVertexArray(m_Model);
     m_VertexArray.describeVertexArray(0,3,GlTypes::Float, 6, GlBool::False,0);
     m_VertexArray.describeVertexArray(1,3,GlTypes::Float, 6, GlBool::False,3);

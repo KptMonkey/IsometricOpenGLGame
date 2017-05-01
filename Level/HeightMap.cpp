@@ -10,7 +10,7 @@
 HeightMap::HeightMap(std::string path) :
     m_ModelMatrix(glm::mat4(1.0f))
   , m_LightPosition(glm::vec3(-160.0f, 160.0f, 300.0f))
-  , m_LightProjection(glm::ortho(-160.0f, 160.0f, -160.0f, 160.0f, 250.0f, 500.0f))
+  , m_LightProjection(glm::ortho(-320.0f, 320.0f, -320.0f, 320.0f, 250.0f, 700.0f))
 
 {
     loadHeightMapFromImage(path);

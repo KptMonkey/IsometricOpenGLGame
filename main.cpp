@@ -66,7 +66,7 @@ int main() {
         depthFBO.unbind();
 
         glViewport(0,0,800,600);
-//        rctx.drawDepthMap(debug, depth);
+        rctx.drawDepthMap(debug, depth);
         rctx.clearColor(0.1f, 0.3f, 0.3f, 1.0f);
         rctx.clearColorBuffer();
         rctx.clearDepthBuffer();

@@ -65,9 +65,9 @@ Input::moveCamera(Camera &camera) {
 void
 Input::zoomCamera(Camera &camera) {
     glm::vec3 zoom = glm::vec3(camera.View[0][2], camera.View[1][2], camera.View[2][2]);
-//    auto tCameraPos = camera.Position + (static_cast<float>(m_Event.wheel.y) * zoom)*2.10f;
-//    if (tCameraPos.z >= 75.0f || tCameraPos.z <= 45.0f)
-//        return;
+    auto tCameraPos = camera.Position + (static_cast<float>(m_Event.wheel.y) * zoom)*2.10f;
+    if (tCameraPos.z >= 75.0f || tCameraPos.z <= 45.0f)
+        return;
     camera.Position +=(static_cast<float>(m_Event.wheel.y) * zoom)*2.10f;
     updateView(camera);
 }

@@ -25,8 +25,8 @@ Enemy::Enemy(HeightMap &height, glm::vec2 position) :
 void
 Enemy::intersectWithBullet(std::list<Bullet> const & bullets) {
     for (auto & bullet : bullets) {
-        if (std::abs(bullet.m_BulletPos.x - m_Position.x)< 1.0f && std::abs(bullet.m_BulletPos.y - m_Position.y)< 1.0f
-                && std::abs(bullet.m_BulletPos.z - m_Position.z)< 2.0f) {
+        if (std::abs(bullet.getPosition().x - m_Position.x)< 1.0f && std::abs(bullet.getPosition().y - m_Position.y)< 1.0f
+                && std::abs(bullet.getPosition().z - m_Position.z)< 2.0f) {
             m_Hit=true;
         }
     }

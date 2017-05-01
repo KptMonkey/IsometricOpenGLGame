@@ -19,7 +19,7 @@ public:
     draw(Camera const & camera, RenderContext & rctx) override;
 
     void
-    intersectWithBullet(std::list<Bullet> const &bullets);
+    intersectWithBullet(std::list<Bullet> const & bullets);
 
     void
     lookForPlayer(Player & player);

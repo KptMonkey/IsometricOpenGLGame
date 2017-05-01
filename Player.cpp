@@ -9,6 +9,7 @@ Player::Player(HeightMap &height, int x, int y) :
     m_Position(glm::vec3(x, y, m_Map.getHeight(x, y))),
     m_NextPosition(m_Position) {
 
+    createPlayerMesh(m_Model,20,20);
     m_VertexArray.createVertexArray(m_Model);
     m_VertexArray.describeVertexArray(0,3,GlTypes::Float, 6, GlBool::False,0);
     m_VertexArray.describeVertexArray(1,3,GlTypes::Float, 6, GlBool::False,3);
@@ -23,7 +24,7 @@ Player::updatePosition() {
     m_Position += (m_NextPosition - m_Position) * 0.01f;
     m_Position.z = m_Map.getHeight(m_Position.x, m_Position.y) + 2.5f; // Half size of the cube
     m_ModelMatrix = glm::translate(m_ModelMatrix, m_Position);
-    m_ModelMatrix = glm::scale(m_ModelMatrix, glm::vec3(3.0f));
+    m_ModelMatrix = glm::rotate(m_ModelMatrix,0.01f,glm::vec3(0.0f,0.0f,1.0f));
     switch(m_PowerUp) {
         case PowerUpAttribute::GROW :
             m_ModelMatrix = glm::scale(m_ModelMatrix, glm::vec3(2.0f));
@@ -108,3 +109,46 @@ Player::clearBullets() {
     if ( m_Bullets.front().canBeRemoved())
         m_Bullets.pop_front();
 }
+
+void
+Player::createPlayerMesh(std::vector<glm::vec3> &model, int uline, int vline) {
+    int startU=0;
+    int startV=0;
+    float endU=3.14f*2.0f;
+    float endV=3.14f;
+    float stepU=(endU-startU)/uline;
+    float stepV=(endV-startV)/vline;
+    for (int i=0;i<uline;i++) {
+        for (int j=0;j<vline;j++) {
+            float u=i*stepU+startU;
+            float v=j*stepV+startV;
+            float un=(i+1==uline) ? endU : (i+1)*stepU+startU;
+            float vn=(j+1==vline) ? endV : (j+1)*stepV+startV;
+            glm::vec3 p0=sphereEquation(u,v, 1.5f);
+            glm::vec3 p1=sphereEquation(u, vn, 1.5f);
+            glm::vec3 p2=sphereEquation(un, v, 1.5f);
+            glm::vec3 p3=sphereEquation(un, vn, 1.5f);
+
+             // Like a donkey....
+             model.emplace_back(p0);
+             model.emplace_back(glm::normalize(p0));
+             model.emplace_back(p2);
+             model.emplace_back(glm::normalize(p2));
+             model.emplace_back(p1);
+             model.emplace_back(glm::normalize(p1));
+
+             model.emplace_back(p3);
+             model.emplace_back(glm::normalize(p3));
+             model.emplace_back(p1);
+             model.emplace_back(glm::normalize(p1));
+             model.emplace_back(p2);
+             model.emplace_back(glm::normalize(p2));
+         }
+    }
+}
+
+glm::vec3
+Player::sphereEquation(float u, float v, float r){
+    return glm::vec3(std::cos(u)*std::sin(v)*r, std::cos(v)*r, std::sin(u)*std::sin(v)*r);
+}
+

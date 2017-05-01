@@ -12,7 +12,7 @@ struct Camera
                            LookAt,
                            glm::vec3(0.0f, 1.0f, 0.0f));
 
-        Projection = glm::perspective( 45.0f, 0.75f, 0.01f, 250.0f );
+        Projection = glm::perspective( 45.0f, 0.75f, 0.01f, 500.0f );
     }
 
     glm::vec3 Position;

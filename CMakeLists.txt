@@ -39,11 +39,12 @@ add_executable( game ${PROJECT_SOURCE_DIR}/main.cpp
                 RenderAbstraction/Texture
                 RenderAbstraction/RenderAbstraction
                 RenderAbstraction/FrameBuffer
+                Camera/Camera
                 Input/Input
                 Level/HeightMap
                 Player
                 IGlobalRenderable
-                Collectable
+                PowerUp
                 Bullet
                 Enemy
                 )

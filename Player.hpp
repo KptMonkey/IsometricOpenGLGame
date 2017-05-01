@@ -2,16 +2,16 @@
 #include "RenderAbstraction/RenderAbstraction.hpp"
 #include "Level/HeightMap.hpp"
 #include "Bullet.hpp"
-#include <vector>
+#include <list>
 
-enum class PowerUp {
+enum class PowerUpAttribute {
     GROW
 };
 
 class Player : public IGlobalRenderable {
 public:
 
-    Player(HeightMap & height);
+    Player(HeightMap & height, int x, int y);
 
     void
     drawShadow(Shader &shader, RenderContext &rctx) override;
@@ -40,23 +40,26 @@ public:
     glm::vec3
     setNextPosition(glm::vec3 const & nextPosition);
 
-    std::vector<Bullet> const &
+    std::list<Bullet> const &
     getBullets();
 
     void
-    setPowerUp(PowerUp powerUp);
+    setPowerUp(PowerUpAttribute powerUp);
+
+    void
+    clearBullets();
 
 private:
 
-    PowerUp             m_PowerUp;
-    std::vector<Bullet> m_Bullets;
-    glm::vec3           m_Position;
+    PowerUpAttribute    m_PowerUp;
+    std::list<Bullet>   m_Bullets;
     Shader              m_Shader;
     VertexArray         m_VertexArray;
     glm::mat4           m_ModelMatrix;
     bool                m_Hit;
     float               m_HitBox;
     HeightMap&          m_Map;
+    glm::vec3           m_Position;
     glm::vec3           m_NextPosition;
 
     std::vector<float>  m_Model = {

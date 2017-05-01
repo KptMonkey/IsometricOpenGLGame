@@ -27,7 +27,7 @@ void
 updateView(Camera & camera);
 
 void
-movePlayer(Player & player, Camera const & camera);
+movePlayer(Player & player, Camera const & camera, HeightMap & map);
 
 void
 shootPlayer(Player & player, Camera const & camera, HeightMap &map);

@@ -28,7 +28,7 @@ Input::updateInput(Camera &camera, Player &player, bool & running, HeightMap  & 
 
             case SDL_MOUSEBUTTONDOWN:
                 if( m_Event.button.button == SDL_BUTTON_LEFT ) {
-                    movePlayer(player, camera);
+                    movePlayer(player, camera, map);
                 }
                 if (m_Event.button.button == SDL_BUTTON_RIGHT) {
                     shootPlayer(player, camera, map);
@@ -41,15 +41,15 @@ Input::updateInput(Camera &camera, Player &player, bool & running, HeightMap  & 
 void
 Input::moveCamera(Camera &camera) {
     float dx, dy;
+    dx = dy = 0.0f;
     if (m_Event.key.keysym.scancode == SDL_SCANCODE_W){
-        dy += 2.0f;
+        dy = 2.0f;
     }
-
     if (m_Event.key.keysym.scancode == SDL_SCANCODE_S){
-        dy += -2.0f;
+        dy = -2.0f;
     }
     if (m_Event.key.keysym.scancode == SDL_SCANCODE_D){
-        dx =  +2.0f;
+        dx =  2.0f;
     }
     if (m_Event.key.keysym.scancode == SDL_SCANCODE_A){
         dx = -2.0f;
@@ -65,6 +65,9 @@ Input::moveCamera(Camera &camera) {
 void
 Input::zoomCamera(Camera &camera) {
     glm::vec3 zoom = glm::vec3(camera.View[0][2], camera.View[1][2], camera.View[2][2]);
+//    auto tCameraPos = camera.Position + (static_cast<float>(m_Event.wheel.y) * zoom)*2.10f;
+//    if (tCameraPos.z >= 75.0f || tCameraPos.z <= 45.0f)
+//        return;
     camera.Position +=(static_cast<float>(m_Event.wheel.y) * zoom)*2.10f;
     updateView(camera);
 }
@@ -78,8 +81,9 @@ Input::updateView(Camera &camera){
 }
 
 void
-Input::movePlayer(Player &player, Camera const & camera) {
+Input::movePlayer(Player &player, Camera const & camera, HeightMap & map) {
     auto intersection = intersectWithMap(camera);
+    if (map.getHeight(intersection.x, intersection.y) > 20.0f) return;
     player.setNextPosition(intersection);
 }
 
@@ -94,8 +98,8 @@ glm::vec3
 Input::intersectWithMap(const Camera &camera) {
     int x = m_Event.motion.x;
     int y = m_Event.motion.y;
-    float ndcX = (x/800.0 - 0.5f) * 2.0f;
-    float ndcY = (0.5f -y/600.0f) * 2.0f;
+    float ndcX = (x/800.0f - 0.5f) * 2.0f;
+    float ndcY = (0.5f - y/600.0f) * 2.0f;
     glm::vec4 homo(ndcX, ndcY, -1.0f, 1.0f);
     glm::vec4 view = glm::inverse(camera.Projection) * homo;
     glm::vec4 world = glm::inverse(camera.View) * glm::vec4(view.x,

@@ -6,7 +6,7 @@ Enemy::Enemy(HeightMap &height, glm::vec2 position) :
         m_Speed(0.005f),
         m_DeltaPosition(0.0f),
         m_Map(height),
-        m_AggroRange(20.0f){
+        m_AggroRange(30.0f){
 
     m_VertexArray.createVertexArray(m_Model);
     m_VertexArray.describeVertexArray(0,3,GlTypes::Float, 6, GlBool::False,0);
@@ -23,7 +23,7 @@ Enemy::Enemy(HeightMap &height, glm::vec2 position) :
 }
 
 void
-Enemy::intersectWithBullet(std::vector<Bullet> const & bullets) {
+Enemy::intersectWithBullet(std::list<Bullet> const & bullets) {
     for (auto & bullet : bullets) {
         if (std::abs(bullet.m_BulletPos.x - m_Position.x)< 1.0f && std::abs(bullet.m_BulletPos.y - m_Position.y)< 1.0f
                 && std::abs(bullet.m_BulletPos.z - m_Position.z)< 2.0f) {
@@ -55,8 +55,9 @@ Enemy::draw(Camera const & camera, RenderContext & rctx) {
 
 void
 Enemy::lookForPlayer(Player & player) {
+    if (m_Hit) return;
     float disToPlayer = glm::distance(player.getPosition(), m_Position);
-    if (disToPlayer < 5.0f) {
+    if (disToPlayer < player.getHitBox()) {
         player.hit();
         return;
     }
@@ -94,4 +95,9 @@ Enemy::huntPlayer() {
 
     glm::mat4 mat(1.0f);
     m_ModelMatrix = glm::translate(mat, m_Position);
+}
+
+bool
+Enemy::isHit() {
+    return m_Hit;
 }

@@ -4,6 +4,7 @@
 #include "Bullet.hpp"
 #include "Player.hpp"
 #include <vector>
+#include <list>
 #include <glm/glm.hpp>
 
 class Enemy : public IGlobalRenderable {
@@ -18,10 +19,13 @@ public:
     draw(Camera const & camera, RenderContext & rctx) override;
 
     void
-    intersectWithBullet(std::vector<Bullet> const &bullets);
+    intersectWithBullet(std::list<Bullet> const &bullets);
 
     void
     lookForPlayer(Player & player);
+
+    bool
+    isHit();
 
 private:
 

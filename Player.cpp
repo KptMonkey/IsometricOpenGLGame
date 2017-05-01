@@ -2,10 +2,12 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <iostream>
 
-Player::Player(HeightMap &height) :
+Player::Player(HeightMap &height, int x, int y) :
     m_Hit(false),
-    m_HitBox(5.0f),
-    m_Map(height) {
+    m_HitBox(3.0f),
+    m_Map(height),
+    m_Position(glm::vec3(x, y, m_Map.getHeight(x, y))),
+    m_NextPosition(m_Position) {
 
     m_VertexArray.createVertexArray(m_Model);
     m_VertexArray.describeVertexArray(0,3,GlTypes::Float, 6, GlBool::False,0);
@@ -23,7 +25,7 @@ Player::updatePosition() {
     m_ModelMatrix = glm::translate(m_ModelMatrix, m_Position);
     m_ModelMatrix = glm::scale(m_ModelMatrix, glm::vec3(3.0f));
     switch(m_PowerUp) {
-        case PowerUp::GROW :
+        case PowerUpAttribute::GROW :
             m_ModelMatrix = glm::scale(m_ModelMatrix, glm::vec3(2.0f));
     }
 }
@@ -55,6 +57,7 @@ Player::draw(Camera const & camera, RenderContext & rctx) {
         bullet.updatePosition();
         bullet.draw(camera, rctx);
     }
+    clearBullets();
 }
 
 void
@@ -87,12 +90,21 @@ Player::setNextPosition(glm::vec3 const & nextPosition) {
     m_NextPosition = nextPosition;
 }
 
-std::vector<Bullet> const &
+std::list<Bullet> const &
 Player::getBullets() {
     return m_Bullets;
 }
 
 void
-Player::setPowerUp(PowerUp powerUp) {
+Player::setPowerUp(PowerUpAttribute powerUp) {
     m_PowerUp = powerUp;
+}
+
+void
+Player::clearBullets() {
+    if (m_Bullets.empty())
+        return;
+
+    if ( m_Bullets.front().canBeRemoved())
+        m_Bullets.pop_front();
 }

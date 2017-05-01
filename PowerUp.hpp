@@ -4,9 +4,9 @@
 #include <vector>
 #include "Player.hpp"
 
-class Collectable : public IGlobalRenderable {
+class PowerUp : public IGlobalRenderable {
 public:
-    Collectable(HeightMap & height);
+    PowerUp(HeightMap & height, int x, int y);
 
     void
     drawShadow(Shader &shader, RenderContext &rctx) override;
@@ -17,15 +17,14 @@ public:
     void
     intersect(Player & player);
 
-    glm::mat4 model;
 
-    Shader m_Shader;
 private:
+    Shader      m_Shader;
     HeightMap & m_Map;
-    glm::mat4 m_ModelMatrix;
+    glm::mat4   m_ModelMatrix;
     VertexArray m_VertexArray;
-    glm::vec3 m_CollectablePos;
-    bool m_Hit;
+    glm::vec3   m_Position;
+    bool        m_Hit;
 
     std::vector<float> m_Model = {
         -0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,

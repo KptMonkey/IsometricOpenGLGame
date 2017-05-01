@@ -43,46 +43,46 @@ HeightMap::HeightMap(std::string path) :
 bool
 HeightMap::loadHeightMapFromImage(std::string const & path) {
 
-    std::random_device rd;
-    std::mt19937 mt(rd());
-    std::uniform_real_distribution<double> dist(0.3, 6.0);
-
     auto image = IMG_Load(path.c_str());
     m_Rows = image->h;
     m_Columns = image->w;
-    float halfWidth = (float)(m_Columns)/2.0f;
-    float halfHeight = (float)(m_Rows)/2.0f;
-
+    float halfWidth = m_Columns * 0.5f;
+    float halfHeight = m_Rows * 0.5f;
     m_Heights.resize(m_Rows);
-    for ( int i = 0; i < m_Rows; ++i) {
-        for (int j = 0; j<m_Columns; ++j) {
+
+    for (int i = 0; i < m_Rows; ++i) {
+        for (int j = 0; j < m_Columns; ++j) {
 
             m_Heights[j].reserve(m_Rows);
 
-            int lineOffSet = i * (image->pitch/4);
-            Uint32 pixel = ((Uint32*)image->pixels)[lineOffSet + j];
-            Uint8 r, g ,b;
+            int lineOffSet = i*(image->pitch/4);
+            uint32_t pixel = static_cast<uint32_t*>(image->pixels)[lineOffSet + j];
+            uint8_t r, g ,b;
             SDL_GetRGB(pixel,image->format,&r, &g, &b);
-            float m_pHeight = static_cast<float>(g/15.0f);
-            VertexT temp ;
-            m_Heights[j][m_Rows-i-1] = m_pHeight;
-            if (m_pHeight < 4.3f)
-                m_GrasPosition.push_back(glm::vec3(j-halfWidth, i-halfHeight, m_pHeight));
-            else if (m_pHeight >4.3 && m_pHeight < 6 && i%5==0)
-                m_GrasPosition.push_back(glm::vec3(j-halfWidth, i-halfHeight, m_pHeight));
 
-            temp.Position = glm::vec3(j-halfWidth, i-halfHeight, m_pHeight);
+            float height = r;
+            m_Heights[j][m_Rows-i-1] = height;
+            // Set the gras positions
+            if (height < 6.0f)
+                m_GrasPosition.emplace_back(j-halfWidth, i-halfHeight, height);
+            else if (height > 6.0f && height < 10.0f && i%5==0)
+                m_GrasPosition.emplace_back(j-halfWidth, i-halfHeight, height);
+
+            VertexT temp ;
+            temp.Position = glm::vec3(j-halfWidth, i-halfHeight, height);
             temp.TexPosition = glm::vec2(16.0f * (float)j/m_Rows, 16.0f * (float)i/m_Rows);
-            auto pos1 = glm::vec3(j-halfWidth, i-halfHeight, m_pHeight);
+
+            //Calculate normals in an ugly way... FEM would be nicer
+            auto pos1 = glm::vec3(j-halfWidth, i-halfHeight, height);
             glm::vec3 pos2;
             glm::vec3 pos3;
             if ( i == m_Rows || j == m_Columns ) {
-                pos2 = glm::vec3((j)-halfWidth, (i-1)-halfHeight, m_pHeight);
-                pos3 = glm::vec3((j-1)-halfWidth, (i)-halfHeight, m_pHeight);
+                pos2 = glm::vec3((j)-halfWidth, (i-1)-halfHeight, height);
+                pos3 = glm::vec3((j-1)-halfWidth, (i)-halfHeight, height);
             }
             else {
-                pos2 = glm::vec3((j)-halfWidth, (1+i)-halfHeight, m_pHeight);
-                pos3 = glm::vec3((j-1)-halfWidth, (i)-halfHeight, m_pHeight);
+                pos2 = glm::vec3((j)-halfWidth, (1+i)-halfHeight, height);
+                pos3 = glm::vec3((j-1)-halfWidth, (i)-halfHeight, height);
             }
             temp.Normal = glm::cross((pos1-pos2),(pos1-pos3));
 
@@ -135,7 +135,7 @@ HeightMap::createIndicies() {
             }
         }
         else {
-            for (int x = m_Columns-1; x >=0; x-- ) {
+            for (int x = m_Columns-1; x >=0; x--) {
                 m_Indices.push_back(x+(y*m_Columns));
                 m_Indices.push_back(x+(y*m_Columns) + m_Columns);
              }
@@ -145,7 +145,6 @@ HeightMap::createIndicies() {
 
 void
 HeightMap::drawShadow(Shader & shader, RenderContext & rctx) {
-    //It would be possible to have more terrains......
     shader["model"] = m_ModelMatrix;
     m_VertexArray.bindVertexArray();
     rctx.drawIndex(PrimitiveType::TiangleStrip,m_Indices.size());
@@ -174,7 +173,7 @@ HeightMap::draw(Camera const & camera, RenderContext & rctx) {
     rctx.drawIndex(PrimitiveType::TiangleStrip,m_Indices.size());
 
     m_GrasShader.activate();
-    m_GrasShader["wind"]=0.0f;
+    m_GrasShader["wind"]=0.8f;
     m_GrasShader["model"]=m_ModelMatrix;
     m_GrasShader["view"]=camera.View;
     m_GrasShader["projection"]=camera.Projection;
